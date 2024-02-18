@@ -43,6 +43,11 @@ class MyAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void removeFavorite(WordPair pair) {
+    favorites.remove(pair);
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -60,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         page = GeneratorPage();
       case 1:
-        page = Placeholder();
+        page = FavoritesPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -102,7 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 
 class GeneratorPage extends StatelessWidget {
   @override
@@ -146,6 +150,41 @@ class GeneratorPage extends StatelessWidget {
       ),
     );
   }
+}
+
+class FavoritesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    var favorites = appState.favorites;
+
+    String favoriteText;
+    if (favorites.length <= 1) {
+      favoriteText = 'favorite';
+    } else {
+      favoriteText = 'favorites';
+    }
+
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('You have ${favorites.length} $favoriteText:'),
+        ),
+        for (var pair in favorites) 
+          ListTile(
+            leading: Icon(Icons.favorite),
+            title: Text(pair.asLowerCase),
+            trailing: ElevatedButton.icon(
+              onPressed: () => appState.removeFavorite(pair),
+              icon: Icon(Icons.delete),
+              label: Text('delete'),
+            ),
+          ),
+      ],
+    );
+  }
+
 }
 
 class BigCard extends StatelessWidget {
